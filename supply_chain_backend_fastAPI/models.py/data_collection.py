@@ -1,10 +1,16 @@
-from sqlalchemy import Column, String, Text
-from app.core.database import Base
+from sqlalchemy import Column, String, Text, JSON, DateTime, func
+from supply_chain_backend_fastAPI.core.database import Base
+import uuid
 
 class DataCollection(Base):
-    __tablename__ = "data"
+    __tablename__ = "data_collections"
     
-    dataid = Column(String(255), primary_key=True)
-    title = Column(String(255), nullable=False)
+    dataid = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = Column(String(255), nullable=False, index=True)
     description = Column(Text, nullable=True)
-    data = Column(Text, nullable=False)
+    data = Column(JSON, nullable=False)  # Changed to JSON type for better data handling
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+    def __repr__(self):
+        return f"<DataCollection(dataid='{self.dataid}', title='{self.title}')>"

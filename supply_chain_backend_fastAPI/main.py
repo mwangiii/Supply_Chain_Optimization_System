@@ -1,72 +1,63 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.openapi.utils import get_openapi
 from contextlib import asynccontextmanager
 import uvicorn
+import os
+from dotenv import load_dotenv
 
-# Import routers
-from app.routes.system_analytics import router as system_analytics_router
-from app.routes.tracking import router as tracking_router
-from app.routes.users import router as auth_router, index
+# Load environment variables
+load_dotenv()
 
 # Import database
-from app.database import engine, Base
+from supply_chain_backend_fastAPI.core.database import engine, Base
+from supply_chain_backend_fastAPI.api.api_v1.api import api_router
+from supply_chain_backend_fastAPI.core.config import settings
 
 # Define startup and shutdown events
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: Create tables if they don't exist
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    
+    print("Database tables created or verified")
     yield
     # Shutdown: Close connections, etc.
-    # This would be implemented as needed
+    # Any cleanup can be added here
 
 # Create FastAPI application
 app = FastAPI(
-    title="Supply Chain Management System API",
+    title=settings.PROJECT_NAME,
     description="API for managing supply chain operations and analytics",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url=f"{settings.API_V1_STR}/docs",
+    redoc_url=f"{settings.API_V1_STR}/redoc",
 )
 
 # Configure CORS
+origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For production, specify exact origins
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Register routers
-app.include_router(system_analytics_router)
-app.include_router(tracking_router)
-app.include_router(auth_router)
+# Include API router
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # Root endpoint
 @app.get("/", tags=["Root"])
-async def root():
-    return index()
-
-# Custom OpenAPI schema to add more information
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
-    
-    openapi_schema = get_openapi(
-        title="Supply Chain Management System API",
-        version="1.0.0",
-        description="API for managing supply chain operations and analytics",
-        routes=app.routes,
-    )
-    
-    # Add any custom OpenAPI extensions here if needed
-    
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-app.openapi = custom_openapi
+def root():
+    return {
+        "status": "success",
+        "message": "Welcome to the Supply Chain Management System API!",
+        "docs": f"{settings.API_V1_STR}/docs"
+    }
 
 # Run the application
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("supply_chain_backend_fastAPI.main:app", host="0.0.0.0", port=8000, reload=True)

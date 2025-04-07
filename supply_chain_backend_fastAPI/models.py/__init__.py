@@ -1,2 +1,2 @@
-from app.models.users import User
-from app.models.data_collection import DataCollection
+from supply_chain_backend_fastAPI.models.users import User
+from supply_chain_backend_fastAPI.models.data_collection import DataCollection

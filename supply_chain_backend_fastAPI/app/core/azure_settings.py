@@ -7,6 +7,7 @@ class AzureSettings(Settings):
     AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
     AZURE_STORAGE_CONTAINER: str = os.getenv("AZURE_STORAGE_CONTAINER", "models")
     MODEL_PATH: str = os.getenv("MODEL_PATH", "app/models/ml/demand_forecasting.pkl")
+    INVENTORY_MODEL_PATH: str = os.getenv("INVENTORY_MODEL_PATH", "app/models/ml/inventory_optimization.pkl")  
     
     # Override database settings for Azure
     @property

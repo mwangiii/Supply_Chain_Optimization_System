@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import database
-from supply_chain_backend_fastAPI.core.database import engine, Base
-from supply_chain_backend_fastAPI.api.api_v1.api import api_router
-from supply_chain_backend_fastAPI.core.config import settings
+from .core.database import engine, Base
+from .api.api_v1.api import api_router
+from .core.config import settings
 
 # Define startup and shutdown events
 @asynccontextmanager

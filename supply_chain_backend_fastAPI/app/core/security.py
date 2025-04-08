@@ -2,13 +2,13 @@ from datetime import datetime, timedelta
 from typing import Optional, Union, Any
 from jose import jwt
 from passlib.context import CryptContext
-from supply_chain_backend_fastAPI.core.config import settings
+from ..core.config import settings
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from supply_chain_backend_fastAPI.core.database import get_db
+from ..core.database import get_db
 from supply_chain_backend_fastAPI.models.users import User
 
 # Password hashing context

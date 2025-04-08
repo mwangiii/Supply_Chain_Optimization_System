@@ -20,3 +20,4 @@ app/utils/__pycache__/
 app/utils/*.pyc
 app/utils/*.pyo
 
+env/

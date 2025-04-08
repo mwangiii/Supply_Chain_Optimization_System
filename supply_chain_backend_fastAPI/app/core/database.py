@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import QueuePool
 from typing import AsyncGenerator
 
-from supply_chain_backend_fastAPI.core.config import settings
+from ..core.config import settings
 
 # Create async engine with connection pooling
 engine = create_async_engine(

@@ -21,3 +21,6 @@ app/utils/*.pyc
 app/utils/*.pyo
 
 env/
+
+.env
+*.env

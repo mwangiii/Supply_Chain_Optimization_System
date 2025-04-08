@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from typing import Optional, Dict, Any
 import time
 
-from supply_chain_backend_fastAPI.core.config import settings
+from app.core.config import settings
 
 security = HTTPBearer()
 

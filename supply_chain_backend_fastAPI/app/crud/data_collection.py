@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import or_
 
-from supply_chain_backend_fastAPI.crud.base import CRUDBase
-from supply_chain_backend_fastAPI.models.data_collection import DataCollection
-from supply_chain_backend_fastAPI.schemas.data_collection import DataCollectionCreate, DataCollectionUpdate
+from app.crud.base import CRUDBase
+from app.models.data_collection import DataCollection
+from app.schemas.data_collection import DataCollectionCreate, DataCollectionUpdate
 
 class CRUDDataCollection(CRUDBase[DataCollection, DataCollectionCreate, DataCollectionUpdate]):
     """CRUD operations for DataCollection"""

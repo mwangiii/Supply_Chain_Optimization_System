@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.pool import QueuePool
+# Remove the QueuePool import as it's not compatible with async
 from typing import AsyncGenerator
 
 from ..core.config import settings
@@ -10,15 +10,14 @@ engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
-    # Configure connection pooling
-    poolclass=QueuePool,
+    # Remove the poolclass parameter - async engine has its own pooling mechanism
     pool_size=10,
     max_overflow=20,
     pool_timeout=30,
     pool_recycle=1800,  # Recycle connections after 30 minutes
 )
 
-# Create async session factory
+# The rest of your code remains the same
 AsyncSessionLocal = sessionmaker(
     engine,
     class_=AsyncSession,
@@ -29,7 +28,6 @@ AsyncSessionLocal = sessionmaker(
 
 Base = declarative_base()
 
-# Dependency for database sessions
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency function that yields db sessions

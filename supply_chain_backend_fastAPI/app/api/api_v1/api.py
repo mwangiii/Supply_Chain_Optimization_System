@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from supply_chain_backend_fastAPI.api.api_v1.endpoints import (
+from app.api.api_v1.endpoints import (
     auth,
     data_collection,
     demand_forecasting,

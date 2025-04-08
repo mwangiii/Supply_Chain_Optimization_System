@@ -5,12 +5,13 @@ from jose import JWTError, jwt
 import uuid
 from typing import List, Optional
 
-from supply_chain_backend_fastAPI.core.security import get_password_hash, verify_password, create_access_token
-from supply_chain_backend_fastAPI.core.config import settings
-from supply_chain_backend_fastAPI.core.database import get_db
-from supply_chain_backend_fastAPI.models.users import User
-from supply_chain_backend_fastAPI.schemas.users import UserCreate, UserResponse, UserLogin, UserUpdate, Token, TokenData, PasswordChange
-from supply_chain_backend_fastAPI.utils.helpers import success_response
+from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.config import settings
+from app.core.database import get_db
+from app.models.users import User
+from app.schemas.users import UserCreate, UserResponse, UserLogin, UserUpdate, Token, TokenData, PasswordChange
+from app.utils.helpers import success_response
+
 
 router = APIRouter()
 

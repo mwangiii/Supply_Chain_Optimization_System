@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, Text, JSON, DateTime, func
-from supply_chain_backend_fastAPI.core.database import Base
+from app.core.database import Base
 import uuid
 
 class DataCollection(Base):
@@ -14,3 +14,4 @@ class DataCollection(Base):
     
     def __repr__(self):
         return f"<DataCollection(dataid='{self.dataid}', title='{self.title}')>"
+    

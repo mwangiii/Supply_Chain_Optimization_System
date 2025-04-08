@@ -4,9 +4,9 @@ from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 import uuid
 
-from supply_chain_backend_fastAPI.core.database import get_db
-from supply_chain_backend_fastAPI.models.data_collection import DataCollection
-from supply_chain_backend_fastAPI.utils.helpers import success_response
+from app.core.database import get_db
+from app.models.data_collection import DataCollection
+from app.utils.helpers import success_response
 
 # Define Pydantic models for request and response
 class DataCollectionBase(BaseModel):

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, DateTime, Boolean, func
-from supply_chain_backend_fastAPI.core.database import Base
+from app.core.database import Base
 import uuid
 
 class User(Base):

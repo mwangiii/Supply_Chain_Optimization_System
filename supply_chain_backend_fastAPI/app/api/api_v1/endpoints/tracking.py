@@ -3,8 +3,8 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from sqlalchemy.orm import Session
 
-from supply_chain_backend_fastAPI.core.database import get_db
-from supply_chain_backend_fastAPI.utils.helpers import success_response
+from app.core.database import get_db
+from app.utils.helpers import success_response
 
 # Define Pydantic models for response
 class StandardResponse(BaseModel):

@@ -3,12 +3,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 
-from supply_chain_backend_fastAPI.core.database import get_db
-from supply_chain_backend_fastAPI.models.data_collection import DataCollection
-from supply_chain_backend_fastAPI.schemas.data_collection import DataCollectionCreate, DataCollectionResponse
-from supply_chain_backend_fastAPI.api.api_v1.endpoints.auth import get_current_user
-from supply_chain_backend_fastAPI.models.users import User
-from supply_chain_backend_fastAPI.utils.helpers import success_response
+from app.core.database import get_db
+from app.models.data_collection import DataCollection
+from app.schemas.data_collection import DataCollectionCreate, DataCollectionResponse
+from app.api.api_v1.endpoints.auth import get_current_user
+from app.models.users import User
+from app.utils.helpers import success_response
 
 router = APIRouter()
 

@@ -6,8 +6,20 @@ class AzureSettings(Settings):
     # Azure-specific settings
     AZURE_STORAGE_CONNECTION_STRING: str = os.getenv("AZURE_STORAGE_CONNECTION_STRING", "")
     AZURE_STORAGE_CONTAINER: str = os.getenv("AZURE_STORAGE_CONTAINER", "models")
+    
+    # Model paths
     MODEL_PATH: str = os.getenv("MODEL_PATH", "app/models/ml/demand_forecasting.pkl")
-    INVENTORY_MODEL_PATH: str = os.getenv("INVENTORY_MODEL_PATH", "app/models/ml/inventory_optimization.pkl")  
+    INVENTORY_MODEL_PATH: str = os.getenv("INVENTORY_MODEL_PATH", "app/models/ml/inventory_optimization.pkl")
+    ROUTE_MODEL_PATH: str = os.getenv("ROUTE_MODEL_PATH", "app/models/ml/route_optimization.pkl")
+    
+    # Azure IoT Hub settings
+    AZURE_IOT_HUB_CONNECTION_STRING: str = os.getenv("AZURE_IOT_HUB_CONNECTION_STRING", "")
+    AZURE_IOT_HUB_DEVICE_CONNECTION_STRING: str = os.getenv("AZURE_IOT_HUB_DEVICE_CONNECTION_STRING", "")
+    
+    # Azure Microsoft Fabric settings
+    FABRIC_WORKSPACE_NAME: str = os.getenv("FABRIC_WORKSPACE_NAME", "")
+    FABRIC_CAPACITY_ID: str = os.getenv("FABRIC_CAPACITY_ID", "")
+    FABRIC_API_KEY: str = os.getenv("FABRIC_API_KEY", "")
     
     # Override database settings for Azure
     @property

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Truck, 
@@ -10,12 +10,211 @@ import {
   Search, 
   HelpCircle, 
   User,
-  AlertTriangle
+  AlertTriangle,
+  Loader
 } from 'lucide-react';
 import SupplyChainChart from './SupplyChainChart';
 import ShipmentMap from './ShipmentMap';
+import Tracking from './Tracking';
+import AiPredictions from './AiPredictions';
 
 const Dashboard: React.FC = () => {
+  const [demandForecast, setDemandForecast] = useState<number | null>(null);
+  const [forecastConfidence, setForecastConfidence] = useState<number | null>(null);
+  const [systemHealth, setSystemHealth] = useState('Loading');
+  const [shipmentsInTransit, setShipmentsInTransit] = useState<number | null>(null);
+  const [averageDeliveryTime, setAverageDeliveryTime] = useState<number | null>(null);
+  const [stockAvailability, setStockAvailability] = useState<number | null>(null);
+  const [delayRisk, setDelayRisk] = useState('Loading');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('Dashboard');
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        const forecastResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/forecast/demand`);
+        if (!forecastResponse.ok) throw new Error('Failed to fetch demand forecast data');
+        const forecastData = await forecastResponse.json();
+        
+        const trendsResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/forecast/trends`);
+        if (!trendsResponse.ok) throw new Error('Failed to fetch trends data');
+        const trendsData = await trendsResponse.json();
+        
+        const modelStatusResponse = await fetch(`${import.meta.env.VITE_BASE_API_URL}/forecast/model/status`);
+        if (!modelStatusResponse.ok) throw new Error('Failed to fetch model status');
+        const modelStatusData = await modelStatusResponse.json();
+
+        setDemandForecast(forecastData.forecast_value || 0);
+        setForecastConfidence(forecastData.confidence || 0);
+        setSystemHealth(modelStatusData.health_status || 'Unknown');
+        setShipmentsInTransit(trendsData.shipments_in_transit || 0);
+        setAverageDeliveryTime(trendsData.avg_delivery_time || 0);
+        setStockAvailability(trendsData.stock_availability || 0);
+        setDelayRisk(trendsData.delay_risk || 'Unknown');
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError('Failed to load dashboard data. Please try again later.');
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const getStatusColor = (status: string) => {
+    switch(status?.toLowerCase()) {
+      case 'healthy':
+      case 'good':
+      case 'low':
+        return 'bg-emerald-500';
+      case 'warning':
+      case 'medium':
+        return 'bg-amber-500';
+      case 'error':
+      case 'critical':
+      case 'high':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Loader size={48} className="animate-spin text-blue-500" />
+        </div>
+      );
+    }
+
+    switch (activeTab) {
+      case 'Dashboard':
+        return (
+          <>
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                <p>{error}</p>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-6 mb-6">
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-medium mb-4">Current Demand Forecast</h2>
+                <div className="flex flex-col">
+                  <span className="text-5xl font-bold mb-2">{demandForecast?.toLocaleString() || 'N/A'}</span>
+                  <span className="text-sm text-gray-600">{forecastConfidence}% AI prediction confidence</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-6 shadow-sm">
+                <h2 className="text-lg font-medium mb-4">System Health</h2>
+                <div className="flex items-center">
+                  <div className={`w-4 h-4 rounded-full ${getStatusColor(systemHealth)} mr-3`} />
+                  <span className="text-xl font-medium">{systemHealth}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-6 mb-6">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="mb-2">
+                  <ShipmentMap />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium text-gray-700">Shipments</span>
+                  <span className="text-sm font-medium text-gray-700">In Transit</span>
+                  <span className="text-2xl font-bold mt-1">{shipmentsInTransit || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Average Delivery Time</h3>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold">{averageDeliveryTime || 'N/A'}</span>
+                  <span className="text-xl font-medium">days</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Stock Availability</h3>
+                <div className="flex flex-col">
+                  <span className="text-3xl font-bold mb-2">{stockAvailability || 'N/A'}%</span>
+                  <div className="space-y-1">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-emerald-500 mr-2" />
+                      <span className="text-xs text-gray-600">Warehouse</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-emerald-500 mr-2" />
+                      <span className="text-xs text-gray-600">Route optimization</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Delay Risk Forecast</h3>
+                <div className="flex items-center mb-2">
+                  <AlertTriangle 
+                    size={24} 
+                    className={`mr-2 ${
+                      delayRisk?.toLowerCase() === 'high' ? 'text-red-500' :
+                      delayRisk?.toLowerCase() === 'medium' ? 'text-amber-500' :
+                      'text-gray-700'
+                    }`} 
+                  />
+                  <span className="text-2xl font-bold">{delayRisk}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-lg font-medium mb-4">Demand Forecast vs. Actual and Optimization Effectiveness</h2>
+              <div className="h-64">
+                <SupplyChainChart />
+              </div>
+            </div>
+          </>
+        );
+      case 'Live Shipments':
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <Tracking /> {/* Render the Tracking component */}
+          </div>
+        );
+      case 'AI Predictions': // Add case for AI Predictions
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <AiPredictions modelId="defaultModelId" />
+          </div>
+        );
+      case 'Orders & Inventory':
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <Tracking /> {/* Render the Tracking component */}
+          </div>
+        );
+      default:
+        return (
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">{activeTab}</h2>
+            <p>This is the {activeTab} content section. Add specific components here as needed.</p>
+          </div>
+        );
+    }
+  };
+
+  const tabs = [
+    { icon: LayoutDashboard, label: 'Dashboard' },
+    { icon: Truck, label: 'Live Shipments' },
+    { icon: TrendingUp, label: 'AI Predictions' },
+    { icon: Warehouse, label: 'Warehouses' },
+    { icon: PackageCheck, label: 'Orders & Inventory' },
+    { icon: BarChart3, label: 'Reports' },
+    { icon: Settings, label: 'Settings' },
+  ];
+
   return (
     <div className="flex min-h-screen bg-[#f8f9fa]">
       {/* Sidebar */}
@@ -23,18 +222,19 @@ const Dashboard: React.FC = () => {
         <div className="p-6 border-b border-[#1e293b] mb-4">
           <h1 className="text-xl font-bold">AI Supply Chain</h1>
         </div>
-        
         <div className="flex flex-col space-y-1 px-2">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Dashboard" active />
-          <SidebarItem icon={<Truck size={20} />} label="Live Shipments" />
-          <SidebarItem icon={<TrendingUp size={20} />} label="AI Predictions" />
-          <SidebarItem icon={<Warehouse size={20} />} label="Warehouses" />
-          <SidebarItem icon={<PackageCheck size={20} />} label="Orders & Inventory" />
-          <SidebarItem icon={<BarChart3 size={20} />} label="Reports" />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
+          {tabs.map(({ icon: Icon, label }) => (
+            <SidebarItem
+              key={label}
+              icon={<Icon size={20} />}
+              label={label}
+              active={activeTab === label}
+              onClick={() => setActiveTab(label)}
+            />
+          ))}
         </div>
       </div>
-      
+
       {/* Main Content */}
       <div className="flex-1 p-6">
         {/* Header */}
@@ -56,94 +256,24 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
         </div>
-        
-        {/* Main Grid */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          {/* Current Demand Forecast */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-medium mb-4">Current Demand Forecast</h2>
-            <div className="flex flex-col">
-              <span className="text-5xl font-bold mb-2">7,500</span>
-              <span className="text-sm text-gray-600">95% AI prediction confidence</span>
-            </div>
-          </div>
-          
-          {/* System Health */}
-          <div className="bg-white rounded-lg p-6 shadow-sm">
-            <h2 className="text-lg font-medium mb-4">System Health</h2>
-            <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-emerald-500 mr-3"></div>
-              <span className="text-xl font-medium">Healthy</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Secondary Grid */}
-        <div className="grid grid-cols-4 gap-6 mb-6">
-          {/* Shipments in Transit */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <div className="mb-2">
-              <ShipmentMap />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-gray-700">Shipments</span>
-              <span className="text-sm font-medium text-gray-700">In Transit</span>
-              <span className="text-2xl font-bold mt-1">28</span>
-            </div>
-          </div>
-          
-          {/* Average Delivery Time */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Average Delivery Time</h3>
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold">2.5</span>
-              <span className="text-xl font-medium">days</span>
-            </div>
-          </div>
-          
-          {/* Stock Availability */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Stock Availability</h3>
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold mb-2">92 <span className="text-xl">%</span></span>
-              <div className="space-y-1">
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-emerald-500 mr-2"></div>
-                  <span className="text-xs text-gray-600">Warehouse</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 bg-emerald-500 mr-2"></div>
-                  <span className="text-xs text-gray-600">Route opti.zen</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Delay Risk Forecast */}
-          <div className="bg-white rounded-lg p-4 shadow-sm">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Delay Risk Forecast</h3>
-            <div className="flex items-center mb-2">
-              <AlertTriangle size={24} className="text-gray-700 mr-2" />
-              <span className="text-2xl font-bold">Low</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Chart Section */}
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <h2 className="text-lg font-medium mb-4">Demand Forecast vs. Actual and Optimization Effectiveness</h2>
-          <div className="h-64">
-            <SupplyChainChart />
-          </div>
-        </div>
+        {renderContent()}
       </div>
     </div>
   );
 };
 
-// Sidebar Item Component
-const SidebarItem = ({ icon, label, active = false }) => (
-  <div className={`flex items-center py-2 px-3 rounded-md cursor-pointer ${active ? 'bg-[#1e293b] font-medium' : 'hover:bg-[#1e293b] text-gray-300'}`}>
+interface SidebarItemProps {
+  icon: React.ReactNode;
+  label: string;
+  active?: boolean;
+  onClick?: () => void;
+}
+
+const SidebarItem: React.FC<SidebarItemProps> = ({ icon, label, active = false, onClick }) => (
+  <div
+    className={`flex items-center py-2 px-3 rounded-md cursor-pointer ${active ? 'bg-[#1e293b] font-medium' : 'hover:bg-[#1e293b] text-gray-300'}`}
+    onClick={onClick}
+  >
     <div className="mr-3">{icon}</div>
     <span>{label}</span>
   </div>

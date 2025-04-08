@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
+from sqlalchemy.future import select  # Ensure this import is present
+from sqlalchemy.ext.asyncio import AsyncSession  # Add this import
 import uuid
 
 from app.core.database import get_db
@@ -124,34 +126,43 @@ async def get_model_status(dataid: str, db: Session = Depends(get_db)):
     )
 
 @router.get("/{dataid}/performance", response_model=StandardResponse)
-async def get_model_performance(dataid: str, db: Session = Depends(get_db)):
+async def get_model_performance(dataid: str, db: AsyncSession = Depends(get_db)):
     """
     Get the performance metrics of a specific AI model.
-    
+
     Args:
         dataid: The unique identifier of the model
-        
+
     Returns:
         The model performance details
-        
+
     Raises:
         HTTPException: If the model is not found
     """
-    model = db.query(DataCollection).filter(DataCollection.dataid == dataid).first()
-    
+    # Use select with AsyncSession
+    result = await db.execute(select(DataCollection).where(DataCollection.dataid == dataid))
+    model = result.scalars().first()
+
     if not model:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Model not found"
         )
-    
+
+    # Example performance data (replace with actual logic if needed)
+    performance_data = {
+        "accuracy": model.data.get("accuracy", "N/A"),
+        "precision": model.data.get("precision", "N/A"),
+        "recall": model.data.get("recall", "N/A"),
+    }
+
     return StandardResponse(
         status="success",
         data={
             "dataid": model.dataid,
             "title": model.title,
             "description": model.description,
-            "data": model.data
+            "performance": performance_data
         }
     )
 

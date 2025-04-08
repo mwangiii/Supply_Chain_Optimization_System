@@ -40,4 +40,4 @@ def get_settings():
 settings = get_settings()
 
 # Define ALLOWED_ORIGINS outside of the Settings class
-ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",")

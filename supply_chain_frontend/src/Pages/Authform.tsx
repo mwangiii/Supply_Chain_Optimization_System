@@ -11,7 +11,7 @@ const AuthForm: React.FC = () => {
     <div className="flex items-center justify-center min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       <div className="relative flex w-[800px] overflow-hidden rounded-[30px] bg-[hsl(var(--card))] shadow-lg">
         <div className="relative p-5 transition-all duration-500 ease-in-out w-[65%]">
-          <h1 className="text-2xl font-bold mb-4">{isLoginPage ? 'Log In' : 'Sign Up'}</h1>
+          <h1 className="text-2xl font-bold mb-4">{isLoginPage ? 'Log In' : ''}</h1>
           {isLoginPage ? <Login /> : <SignUp onSuccess={toggleForm} />}
         </div>
 

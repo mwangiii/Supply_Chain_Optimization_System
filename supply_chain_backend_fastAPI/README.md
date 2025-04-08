@@ -85,7 +85,7 @@ uvicorn app.main:app --reload
 
 FastAPI automatically generates interactive API documentation. After starting the application, you can access:
 
-- Swagger UI: http://localhost:8000/docs
+- Swagger UI: http://127.0.0.1:8000/api/v1/docs/
 - ReDoc: http://localhost:8000/redoc
 
 ## Development

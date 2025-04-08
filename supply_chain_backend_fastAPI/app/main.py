@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Import database
-from .core.database import engine, Base
-from .api.api_v1.api import api_router
-from .core.config import settings
+from app.core.database import engine, Base
+from app.api.api_v1.api import api_router
+from app.core.config import settings
 
 # Define startup and shutdown events
 @asynccontextmanager
@@ -51,7 +51,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 # Root endpoint
 @app.get("/", tags=["Root"])
-def root():
+async def root():  # Make this async
     return {
         "status": "success",
         "message": "Welcome to the Supply Chain Management System API!",
@@ -60,4 +60,4 @@ def root():
 
 # Run the application
 if __name__ == "__main__":
-    uvicorn.run("supply_chain_backend_fastAPI.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

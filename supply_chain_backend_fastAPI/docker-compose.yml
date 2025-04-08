@@ -1,0 +1,17 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:///./supply_chain.db
+      - SECRET_KEY=your_secret_key_here
+      - DEBUG=true
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
+      - ALLOWED_ORIGINS=http://localhost:3000
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
